@@ -22,7 +22,7 @@ exports.signup = async(req, res) => {
         name,
         email,
         password: hashedPassword,
-        role: "admin"
+        role: "user"
     });  //Create user in DB
     res.status(201).json({message: "Signup successful"});
 

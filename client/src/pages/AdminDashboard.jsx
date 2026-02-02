@@ -41,6 +41,38 @@ const AdminDashboard = () => {
     fetchUsers();
   }, []);
 
+  const handleDeleteUser = async (userId) => {
+  if (!window.confirm("Are you sure you want to delete this user?")) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `http://localhost:3001/api/admin/users/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to delete user");
+    }
+
+    // remove deleted user from UI
+    setUsers((prev) => prev.filter((u) => u._id !== userId));
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -92,8 +124,9 @@ const AdminDashboard = () => {
                 {user.email}
               </p>
 
+              
               <span
-                className={`inline-block mt-2 px-3 py-1 text-xs rounded-full font-semibold
+                className={`inline-block mt-2 px-2 py-1 text-xs  rounded-lg font-semibold
                   ${
                     user.role === "admin"
                       ? "bg-red-600 text-white"
@@ -103,6 +136,17 @@ const AdminDashboard = () => {
               >
                 {user.role.toUpperCase()}
               </span>
+
+              {user.role !== "admin" && (
+                <button
+                  onClick={() => handleDeleteUser(user._id)}
+                  className="mt-4 px-2 py-1 text-xs bg-red-700 hover:bg-red-800 text-white rounded-lg"
+                >
+                  Delete
+                </button>
+                )}
+
+
             </div>
           </div>
         ))}
