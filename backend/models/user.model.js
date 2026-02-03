@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,19 +22,38 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+
     profileImage: {
       type: String,
-      default: ""
+      default: "",
     },
+
     role: {
       type: String,
       enum: ["user", "admin"],
-      default: "user"
-    }
+      default: "user",
+    },
   },
   {
     timestamps: true,
   }
 );
+
+//
+// 🔐 HASH PASSWORD BEFORE SAVING
+//
+userSchema.pre("save", async function () {
+  // if password is not modified, skip hashing
+  if (!this.isModified("password")) return;
+
+    this.password = await bcrypt.hash(this.password, 10);
+});
+
+//
+// 🔑 COMPARE PASSWORD (for login)
+//
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = mongoose.model("User", userSchema);
