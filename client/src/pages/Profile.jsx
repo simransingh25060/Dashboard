@@ -47,7 +47,7 @@ const Profile = () => {
           textAlign: "center",
         }}
       >
-        <h2 style={{ marginBottom: "25px" }}>Profile</h2>
+        <h2 style={{ marginBottom: "25px", fontWeight: "600" }}>Profile</h2>
 
         {/* Profile Image Centered */}
         <div

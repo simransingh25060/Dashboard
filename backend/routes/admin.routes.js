@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { verifyJWT } = require("../middleware/auth.middleware");
 const { isAdmin } = require("../middleware/admin.middleware");
-const { getAllUsers, deleteUser, createUser } = require("../controllers/admin.controller");
+const { getAllUsers, deleteUser, createUser, adminChangePassword } = require("../controllers/admin.controller");
 
 router.get(
   "/users",
@@ -23,6 +23,12 @@ router.post(
   isAdmin,
   createUser
 );
+router.put(
+  "/change-password",
+  verifyJWT,
+  isAdmin,
+  adminChangePassword
+)
 
 
 module.exports = router;

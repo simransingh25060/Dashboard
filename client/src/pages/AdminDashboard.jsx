@@ -54,7 +54,7 @@ const AdminDashboard = () => {
     });
   };
 
-  // 🔹 Add user (admin)
+  //Add user (admin)
   const handleAddUser = async (e) => {
     e.preventDefault();
 
@@ -76,16 +76,15 @@ const AdminDashboard = () => {
         throw new Error(data.message || "Failed to add user");
       }
 
-      // add new user to UI
       setUsers((prev) => [data.user, ...prev]);
 
-      // reset form
       setFormData({ name: "", email: "", password: "" });
     } catch (err) {
       alert(err.message);
     }
   };
 
+  //DELETE USER
   const handleDeleteUser = async (userId) => {
   if (!window.confirm("Are you sure you want to delete this user?")) {
     return;
@@ -110,12 +109,52 @@ const AdminDashboard = () => {
       throw new Error(data.message || "Failed to delete user");
     }
 
-    // remove deleted user from UI
     setUsers((prev) => prev.filter((u) => u._id !== userId));
   } catch (err) {
     alert(err.message);
   }
 };
+
+//ADMIN CAN CHANGE PASSWORD
+const handleChangePassword = async (userId) => {
+  const newPassword = prompt("Enter new password (min 6 chars):");
+
+  if (!newPassword || newPassword.length < 6) {
+    alert("Password must be at least 6 characters");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      "http://localhost:3001/api/admin/change-password",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId,
+          newPassword,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to change password");
+    }
+
+    alert("Password updated successfully!");
+
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
 
 
   if (loading) {
@@ -143,7 +182,6 @@ const AdminDashboard = () => {
         Total users: {users.length}
       </p>
 
-      {/* 🔹 ADD USER FORM */}
       <div className="bg-gray-800 p-6 rounded-xl mb-8 max-w-md">
         <h2 className="text-xl font-semibold text-white mb-4">
           Add New User
@@ -189,7 +227,6 @@ const AdminDashboard = () => {
         </form>
       </div>
 
-      {/* 🔹 USERS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {users.map((user) => (
           <div
@@ -227,13 +264,23 @@ const AdminDashboard = () => {
                 </span>
 
                 {user.role !== "admin" && (
-                  <button
-                    onClick={() => handleDeleteUser(user._id)}
-                    className="px-2 py-1 text-xs bg-red-700 hover:bg-red-800 text-white rounded-lg"
-                  >
-                    Delete
-                  </button>
-                )}
+  <>
+    <button
+      onClick={() => handleChangePassword(user._id)}
+      className="px-2 py-1 text-xs bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg"
+    >
+      Change Password
+    </button>
+
+    <button
+      onClick={() => handleDeleteUser(user._id)}
+      className="px-2 py-1 text-xs bg-red-700 hover:bg-red-800 text-white rounded-lg"
+    >
+      Delete
+    </button>
+  </>
+)}
+
               </div>
             </div>
           </div>

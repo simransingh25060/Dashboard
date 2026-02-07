@@ -61,7 +61,7 @@ exports.createUser = async (req, res) => {
       name,
       email,
       password, // assume password hashing middleware exists
-      role: "user", // 🔒 FORCE user role
+      role: "user", 
     });
 
     res.status(201).json({
@@ -76,6 +76,39 @@ exports.createUser = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.adminChangePassword = async (req, res) => {
+  try {
+     
+    const {userId, newPassword} = req.body;
+
+    if (!userId || !newPassword) {
+      return res.status(400).json({message: "UserId and newPassword required!"})
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({message: "Password must contain atleast 6 characters"})
+    }
+
+    if (req.user.id === userId) {
+      return res.status(400).json({ message: "Use normal change password for yourself" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.password = newPassword;
+    await user.save();
+    res.status(200).json({message: "Password updated successfully!"})
+
+  } catch (err) {
+    console.log(err)
     res.status(500).json({ message: "Server error" });
   }
 };

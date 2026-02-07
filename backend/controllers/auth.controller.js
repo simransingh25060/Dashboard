@@ -60,8 +60,6 @@ exports.login = async(req, res) => {
 
 exports.updateProfile = async (req, res) => {
   try {
-      // console.log(req)
-    // check if file exists
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
